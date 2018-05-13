@@ -1,0 +1,86 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css"
+          rel="stylesheet" type="text/css" />
+    <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function (event)
+        {
+            var mainGridConfig = {
+                columns: [
+                    { name: "text", tree: true, width: 200, resize: true },
+                    { name: "start_date", align: "center", width: 80, resize: true },
+                    { name: "owner", align: "center", width: 60, label: "Owner" },
+                    { name: "duration", width: 50, align: "center" },
+                    { name: "add", width: 44 }
+                ]
+            };
+
+            gantt.config.layout = {
+                css: "gantt_container",
+                rows: [
+                    {
+                        cols: [
+                            {
+                                // the default grid view  
+                                view: "grid",
+                                config: mainGridConfig,
+                                scrollX: "scrollHor",
+                                scrollY: "scrollVer"
+                            },
+                            { resizer: true, width: 1 },
+                            {
+                                // the default timeline view
+                                view: "timeline",
+                                scrollX: "scrollHor",
+                                scrollY: "scrollVer"
+                            },
+                            {
+                                view: "scrollbar",
+                                id: "scrollVer"
+                            }
+                        ]
+                    },
+                    {
+                        view: "scrollbar",
+                        id: "scrollHor"
+                    }
+                ]
+            }
+            var users = new gantt.dataProcessor("/api/user");
+            gantt.config.lightbox.sections = [
+                { name: "description", height: 38, map_to: "text", type: "textarea", focus: true },
+                { name: "owner", map_to: "owner_id", type: "select", options: users },
+                { name: "time", type: "duration", map_to: "auto" }
+            ];
+          
+            gantt.config.order_branch = true;
+            gantt.config.order_branch_free = true;
+            // specifying the date format
+            gantt.config.xml_date = "%Y-%m-%d %H:%i";
+            // initializing gantt
+            gantt.init("gantt_here");
+
+            // initiating data loading
+            gantt.load("/api/data");
+            // initializing dataProcessor
+            var dp = new gantt.dataProcessor("/api/");
+            // and attaching it to gantt
+            dp.init(gantt);
+            // setting the REST mode for dataProcessor
+            dp.setTransactionMode("REST");
+        });
+    </script>
+</head>
+<body>
+    <div id="gantt_here" style="width: 100%; height: 100vh;"></div>
+</body>
+</html>
